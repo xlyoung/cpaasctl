@@ -8,6 +8,7 @@ import (
 	"github.com/gogf/gf/v2/os/gcmd"
 
 	"cpaasctl/internal/controller/hello"
+	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/controller"
 )
 
 var (
@@ -23,6 +24,12 @@ var (
 					hello.NewV1(),
 				)
 			})
+
+		    // 注册 GitController
+			s.Group("/git", func(group *ghttp.RouterGroup) {
+				group.ALL("/", controllers.GetSql)
+			})
+
 			s.Run()
 			return nil
 		},
