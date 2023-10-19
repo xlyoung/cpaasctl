@@ -1,0 +1,36 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="ComposeUnknownValues" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="ComposeUnquotedPorts" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="PyCompatibilityInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ourVersions">
+        <value>
+          <list size="1">
+            <item index="0" class="java.lang.String" itemvalue="3.9" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="12">
+            <item index="0" class="java.lang.String" itemvalue="Authlib" />
+            <item index="1" class="java.lang.String" itemvalue="django-oauth-toolkit" />
+            <item index="2" class="java.lang.String" itemvalue="oauthlib" />
+            <item index="3" class="java.lang.String" itemvalue="cffi" />
+            <item index="4" class="java.lang.String" itemvalue="cryptography" />
+            <item index="5" class="java.lang.String" itemvalue="pycparser" />
+            <item index="6" class="java.lang.String" itemvalue="jwcrypto" />
+            <item index="7" class="java.lang.String" itemvalue="lockfile" />
+            <item index="8" class="java.lang.String" itemvalue="IPy" />
+            <item index="9" class="java.lang.String" itemvalue="Deprecated" />
+            <item index="10" class="java.lang.String" itemvalue="wrapt" />
+            <item index="11" class="java.lang.String" itemvalue="mysqlclient" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
