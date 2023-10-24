@@ -1,51 +1,51 @@
 cpaas:
-  base: "/opt"
+  base: /opt
   registry:
-    url: "10.8.22.212"
+    url: 10.8.22.212
 app:
-  storage:
-    version: "dev-4427b48"
-  captcha:
-    version: "dev-625d712"
-  notification:
-    version: "dev-ad0bf7c"
-  organization:
-    version: "dev-403ff30"
-  passport:
-    version: "dev-e70d718"
-  audit_log:
-    version: "dev-b89fb44"
-  keystore:
-    version: "dev-6590916"
-  core:
-    version: "dev-6e54a73"
-  config-center:
-    version: "dev-4fc502e"
-  messager:
-    version: "dev-e668ea3"
-  openapi:
-    version: "dev-7e72d7c"
-  sso:
-    version: "dev-35522b9"
-  gate:
-    version: "dev-cacec06"
-  console:
-    version: "dev-b3fff8d"
-  jetlinks:
-    version: "dev-c3c384c"
   adapter:
-    version: "main-a99e2e1"
+    version: main-a99e2e1
+  audit_log:
+    version: dev-b89fb44
+  captcha:
+    version: dev-625d712
+  config-center:
+    version: dev-4fc502e
+  console:
+    version: dev-b3fff8d
+  core:
+    version: dev-6e54a73
   dataview-backend:
-    version: "dev-51ca4ac"
-  learning:
-    version: "dev-ccb000e"
+    version: dev-51ca4ac
   frontend-console:
-    version: "dev-aa20403"
-  frontend-sso:
-    version: "dev-e554b6f"
-  frontend-gate:
-    version: "dev-ca1f84d"
-  frontend-jetlinks:
-    version: "dev-c48964f"
+    version: dev-aa20403
   frontend-dataview:
-    version: "dev-23e8dca"
+    version: dev-23e8dca
+  frontend-gate:
+    version: dev-ca1f84d
+  frontend-jetlinks:
+    version: dev-c48964f
+  frontend-sso:
+    version: dev-e554b6f
+  gate:
+    version: dev-cacec06
+  jetlinks:
+    version: dev-c3c384c
+  keystore:
+    version: dev-6590916
+  learning:
+    version: dev-ccb000e
+  messager:
+    version: release-0.0.2
+  notification:
+    version: dev-ad0bf7c
+  openapi:
+    version: dev-7e72d7c
+  organization:
+    version: dev-403ff30
+  passport:
+    version: dev-e70d718
+  sso:
+    version: dev-35522b9
+  storage:
+    version: dev-4427b48

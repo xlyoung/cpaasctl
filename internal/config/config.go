@@ -3,8 +3,14 @@
 package config
 
 import (
+	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
 )
+
+type AppConfig struct {
+	Version string `yaml:"version"`
+	// 添加其他可能的字段
+}
 
 type Config struct {
 	Cpaas struct {
@@ -13,9 +19,7 @@ type Config struct {
 			URL string `yaml:"url"`
 		} `yaml:"registry"`
 	} `yaml:"cpaas"`
-	App map[string]struct {
-		Version string `yaml:"version"`
-	} `yaml:"app"`
+	App map[string]AppConfig `yaml:"app"`
 }
 
 func LoadConfig(filePath string) (*Config, error) {

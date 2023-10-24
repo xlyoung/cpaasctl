@@ -1,0 +1,14 @@
+version: '3'
+services:
+  ##foundation-microserver
+  storage:
+    image: ${CPAAS_REGISTRY_URL}/paas/storage:${STORAGE_VERSION}
+    container_name: storage
+    environment:
+      - NACOS_URL=http://10.8.22.121:8848
+      - NACOS_GROUP=paas
+    ports:
+      - 8001:8001
+    #volumes:
+    #  - ./config/storage/config.toml:/manifest/config/config.toml
+    restart: always
