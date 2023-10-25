@@ -3,6 +3,7 @@ package compose
 import (
 	"context"
 	"fmt"
+	"github.com/compose-spec/compose-go/interpolation"
 	"github.com/compose-spec/compose-go/loader"
 	composeTypes "github.com/compose-spec/compose-go/types" // 添加别名以避免冲突
 	"github.com/docker/docker/api/types"
@@ -12,6 +13,7 @@ import (
 	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/logger"
 	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/utils"
 	"io/ioutil"
+	"time"
 )
 
 func StartApp(appName string) error {
@@ -40,10 +42,28 @@ func StartApp(appName string) error {
 		return err
 	}
 
+	lookupEnv := func(key string) (string, bool) {
+		// 直接从 envVars 映射中检索值
+		value, exists := envVars[key]
+		return value, exists
+	}
+
+	// 创建插值选项，使用您定义的 LookupValue 函数
+	interpOptions := interpolation.Options{
+		LookupValue: lookupEnv,
+		// 如果需要，您可以在这里添加类型转换映射和自定义替换函数
+	}
+
+	interpolatedDict, err := interpolation.Interpolate(dict, interpOptions)
+	if err != nil {
+		logger.Logger.Errorf("Error interpolating variables in docker-compose file: %v", err)
+		return err
+	}
+
 	// 注意这里使用了别名
 	config, err := loader.Load(composeTypes.ConfigDetails{
 		WorkingDir:  ".",
-		ConfigFiles: []composeTypes.ConfigFile{{Config: dict}},
+		ConfigFiles: []composeTypes.ConfigFile{{Config: interpolatedDict}},
 		Environment: envVars,
 	})
 	if err != nil {
@@ -72,14 +92,26 @@ func StartApp(appName string) error {
 		return err
 	}
 
-	ctx := context.Background()
+	// 创建一个新的上下文，它在 30 分钟后超时
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
+	defer cancel() // 确保所有路径上的资源得到清理
 
 	// 拉取需要的镜像
-	_, err = cli.ImagePull(ctx, serviceConfig.Image, types.ImagePullOptions{})
+	reader, err := cli.ImagePull(ctx, serviceConfig.Image, types.ImagePullOptions{})
 	if err != nil {
 		logger.Logger.Errorf("Could not pull image %s: %v", serviceConfig.Image, err)
 		return err
 	}
+
+	// 读取返回的数据直到镜像完全被拉取
+	_, err = ioutil.ReadAll(reader)
+	if err != nil {
+		logger.Logger.Errorf("Error while reading the response of image pull: %v", err)
+		return err
+	}
+	// 确保响应体被关闭
+	reader.Close()
+
 	logger.Logger.Infof("Successfully pulled image %s", serviceConfig.Image)
 
 	// 准备容器配置

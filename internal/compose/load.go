@@ -1,44 +1,51 @@
-// 文件路径: internal/compose/load.go
 package compose
 
 import (
+	"fmt"
+	"github.com/compose-spec/compose-go/interpolation"
 	"github.com/compose-spec/compose-go/loader"
 	"github.com/compose-spec/compose-go/types"
 	"os"
 )
 
-// ComposeConfig holds the docker compose configuration after loading it from file
-type ComposeConfig struct {
-	Config *types.Project
-}
-
-// LoadComposeFile reads a docker-compose.yml file and loads it into a ComposeConfig struct
-func LoadComposeFile(filePath string, environmentVars map[string]string) (*ComposeConfig, error) {
-	// Make sure the file exists
+func LoadAndInterpolateComposeFile(filePath string, environmentVars map[string]string) (*types.Project, error) {
+	// 确保文件存在
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		return nil, err
 	}
 
-	// Using the Compose Loader to load the configuration from file
-	config, err := loader.Load(types.ConfigDetails{
+	// 使用Compose Loader从文件加载配置
+	configDetails := types.ConfigDetails{
 		ConfigFiles: []types.ConfigFile{
 			{
-				Filename: filePath, // this is the path to your docker-compose.yml
-				// If you have specific configuration content, you can specify it here
-				// otherwise the loader will read the content from the provided file path
+				Filename: filePath,
 			},
 		},
-		// If there are any environment variables required for your config, ensure they are provided here
-		Environment: environmentVars, // We are not passing any environment, but you can do it if required
-	}, func(options *loader.Options) {
-		//options.SkipSchemaCheck = true // This allows flexibility in the compose file version
-	})
+		Environment: environmentVars,
+	}
 
+	config, err := loader.Load(configDetails)
 	if err != nil {
 		return nil, err
 	}
 
-	return &ComposeConfig{Config: config}, nil
-}
+	lookupEnv := func(key string) (string, bool) {
+		value, exists := environmentVars[key]
+		return value, exists
+	}
 
-// Other functions that utilize ComposeConfig can be added here
+	interpOptions := interpolation.Options{
+		LookupValue: lookupEnv,
+	}
+
+	interpolatedConfig, err := interpolation.Interpolate(config, interpOptions)
+	if err != nil {
+		return nil, fmt.Errorf("error interpolating variables in docker-compose file: %v", err)
+	}
+
+	return loader.Load(types.ConfigDetails{
+		WorkingDir:  ".",
+		ConfigFiles: []types.ConfigFile{{Config: interpolatedConfig}},
+		Environment: environmentVars,
+	})
+}
