@@ -1,5 +1,5 @@
 cpaas:
-  base: /opt
+  base: /mnt/e/project/goproject/src/gitlab.hycyg.com/paas-tools/cpaasctl
   registry:
     url: 10.8.22.212
 app:

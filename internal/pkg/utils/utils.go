@@ -1,8 +1,12 @@
 package utils
 
 import (
+	"errors"
+	"fmt"
 	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/config"
 	logger "gitlab.hycyg.com/paas-tools/cpaasctl/internal/logger"
+	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -40,4 +44,33 @@ func ConvertToEnvVarName(key string) string {
 	upperKey := strings.ToUpper(key)
 	envKey := strings.ReplaceAll(upperKey, "-", "_")
 	return strings.ReplaceAll(envKey, ".", "_")
+}
+
+func MapToStringSlice(envVars map[string]string) []string {
+	var stringSlice []string
+	for key, value := range envVars {
+		stringSlice = append(stringSlice, fmt.Sprintf("%s=%s", key, value))
+	}
+	return stringSlice
+}
+
+func FindDockerCompose() (string, error) {
+	// Check for the DOCKER_COMPOSE_PATH environment variable, which the user can set to specify a custom path.
+	if path := os.Getenv("DOCKER_COMPOSE_PATH"); path != "" {
+		// Verify that the file exists at the specified path.
+		if _, err := os.Stat(path); err == nil {
+			return path, nil
+		} else if errors.Is(err, os.ErrNotExist) {
+			return "", errors.New("docker-compose not found at the specified DOCKER_COMPOSE_PATH")
+		} else {
+			return "", err // Other error (e.g., permission denied)
+		}
+	}
+
+	// If the environment variable is not set, try to locate it using the system's PATH.
+	path, err := exec.LookPath("docker-compose")
+	if err != nil {
+		return "", errors.New("docker-compose not found in the system's PATH")
+	}
+	return path, nil
 }

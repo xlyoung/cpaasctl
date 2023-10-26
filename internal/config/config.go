@@ -3,6 +3,8 @@
 package config
 
 import (
+	"errors"
+	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
 )
@@ -22,17 +24,43 @@ type Config struct {
 	App map[string]AppConfig `yaml:"app"`
 }
 
-func LoadConfig(filePath string) (*Config, error) {
-	data, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return nil, err
+var (
+	cfg *Config // 保存配置信息的全局变量
+)
+
+func InitConfig(filePath string) error {
+	viper.SetConfigFile(filePath)
+
+	if err := viper.ReadInConfig(); err != nil {
+		return err
 	}
 
-	var cfg Config
-	err = yaml.Unmarshal(data, &cfg)
-	if err != nil {
-		return nil, err
+	// 检查配置文件是否为空
+	if viper.ConfigFileUsed() == "" {
+		return errors.New("config file is empty")
 	}
 
-	return &cfg, nil
+	if err := viper.Unmarshal(&cfg); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetConfig() *Config {
+	return cfg
+}
+
+func SaveConfig(cfg *Config, filePath string) error {
+	data, err := yaml.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(filePath, data, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
