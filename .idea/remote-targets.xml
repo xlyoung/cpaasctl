@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteTargetsManager">
+    <option name="projectDefaultTargetUuid" value="1d5ec91e-b05c-4eaf-894f-f68e66c593b7" />
+    <targets>
+      <target name="WSL - Ubuntu-22.04" type="wsl" uuid="1d5ec91e-b05c-4eaf-894f-f68e66c593b7">
+        <config>
+          <option name="distributionMsId" value="Ubuntu-22.04" />
+          <option name="projectRootOnTarget" value="{exitCode=0, timeout=false, cancelled=false, stdout=/mnt/d/Program Files/goland-2023.2.1/jbr/bin&#10;, stderr=}/cpaasctl" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config>
+            <option name="goPath" value="/mnt/e/project/goproject/" />
+            <option name="goRoot" value="/usr/local/go/bin/go" />
+            <option name="goVersion" value="go1.20.10 linux/amd64" />
+          </config>
+        </ContributedStateBase>
+      </target>
+    </targets>
+  </component>
+</project>

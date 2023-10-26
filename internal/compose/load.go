@@ -2,9 +2,9 @@ package compose
 
 import (
 	"fmt"
-	"github.com/compose-spec/compose-go/interpolation"
-	"github.com/compose-spec/compose-go/loader"
+	"github.com/compose-spec/compose-go/cli"
 	"github.com/compose-spec/compose-go/types"
+	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/logger"
 	"os"
 )
 
@@ -14,38 +14,30 @@ func LoadAndInterpolateComposeFile(filePath string, environmentVars map[string]s
 		return nil, err
 	}
 
-	// 使用Compose Loader从文件加载配置
-	configDetails := types.ConfigDetails{
-		ConfigFiles: []types.ConfigFile{
-			{
-				Filename: filePath,
-			},
-		},
-		Environment: environmentVars,
+	// 准备环境变量
+	var envs []string
+	for key, value := range environmentVars {
+		envs = append(envs, fmt.Sprintf("%s=%s", key, value))
 	}
 
-	config, err := loader.Load(configDetails)
+	// 创建 ProjectOptions
+	options, err := cli.NewProjectOptions(
+		[]string{filePath}, // 指定 docker-compose 文件的路径
+		cli.WithOsEnv,      // 从操作系统加载环境变量
+		cli.WithDotEnv,     // 加载 .env 文件
+		cli.WithEnv(envs),  // 设置自定义环境变量
+	)
 	if err != nil {
+		logger.Logger.Errorf("error creating project options: %v", err)
 		return nil, err
 	}
 
-	lookupEnv := func(key string) (string, bool) {
-		value, exists := environmentVars[key]
-		return value, exists
-	}
-
-	interpOptions := interpolation.Options{
-		LookupValue: lookupEnv,
-	}
-
-	interpolatedConfig, err := interpolation.Interpolate(config, interpOptions)
+	// 从选项加载项目
+	project, err := cli.ProjectFromOptions(options)
 	if err != nil {
-		return nil, fmt.Errorf("error interpolating variables in docker-compose file: %v", err)
+		logger.Logger.Errorf("error loading project from options: %v", err)
+		return nil, err
 	}
 
-	return loader.Load(types.ConfigDetails{
-		WorkingDir:  ".",
-		ConfigFiles: []types.ConfigFile{{Config: interpolatedConfig}},
-		Environment: environmentVars,
-	})
+	return project, nil
 }
