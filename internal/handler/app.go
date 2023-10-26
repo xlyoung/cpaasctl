@@ -1,67 +1,77 @@
 package handler
 
 import (
-	"fmt"
-	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/compose"
 	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/config"
 	logger "gitlab.hycyg.com/paas-tools/cpaasctl/internal/logger"
-	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/utils"
+	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/pkg/compose"
+	composeImpl "gitlab.hycyg.com/paas-tools/cpaasctl/internal/pkg/compose"
+	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/pkg/utils"
 )
 
-func StartApp(appName string) error {
-	// TODO: 实现应用的启动逻辑
+// AppHandler 是应用处理程序
+type AppHandler struct {
+	cfg           *config.Config
+	envVars       map[string]string
+	dockerCompose compose.DockerCompose
+}
 
-	//加载 配置文件引入变量
-	cfg, err := config.LoadConfig("config/cpaas.yaml")
-	if err != nil {
-		return fmt.Errorf("error loading config: %w", err)
-	}
-
+// NewAppHandler 创建一个新的 AppHandler 实例
+func NewAppHandler() (*AppHandler, error) {
+	cfg := config.GetConfig()
 	envVars, err := utils.SetEnvironmentVariables(cfg)
-
 	if err != nil {
-		return fmt.Errorf("error setting environment variables: %w", err)
+		return nil, err
 	}
-	// 例如，使用Docker SDK启动容器或发送请求到一个API
-	project, err := compose.LoadAndInterpolateComposeFile("./docker-compose.yml", envVars)
 
+	dockerComposeBinPath, err := utils.FindDockerCompose()
 	if err != nil {
-		logger.Logger.Error("Error loading docker-compose file: %s\n", err)
+		return nil, err
+	}
+
+	dockerCompose := composeImpl.NewDockerComposeImpl(dockerComposeBinPath, cfg, envVars)
+
+	return &AppHandler{
+		cfg:           cfg,
+		envVars:       envVars,
+		dockerCompose: dockerCompose,
+	}, nil
+}
+
+// StartApp 启动应用
+func (ah *AppHandler) StartApp(appName string) error {
+	logger.Logger.Infof("Starting %s...\n", appName)
+
+	// 使用接口启动服务
+	if _, err := ah.dockerCompose.Up(appName); err != nil {
 		return err
 	}
 
-	logger.Logger.Debugf("Project info %s...\n", project)
+	return nil
+}
 
-	if err != nil {
-		return fmt.Errorf("error starting app: %w", err)
-	}
-	logger.Logger.Infof("Starting %s...\n", appName)
+// StopApp 停止应用
+func (ah *AppHandler) StopApp(appName string) error {
+	logger.Logger.Infof("Stopping %s...\n", appName)
+
+	// 实现应用的停止逻辑，例如，使用 Docker SDK 停止容器或发送请求到一个 API
 
 	return nil
 }
 
-func StopApp(appName string) error {
-	// TODO: 实现应用的停止逻辑
-	// 例如，使用Docker SDK停止容器或发送请求到一个API
-	fmt.Printf("Stopping %s...\n", appName)
-	// 模拟成功的情况
+// RestartApp 重启应用
+func (ah *AppHandler) RestartApp(appName string) error {
+	logger.Logger.Infof("Restarting %s...\n", appName)
+
+	// 实现应用的重启逻辑，例如，使用 Docker SDK 重启容器或发送请求到一个 API
+
 	return nil
 }
 
-func RestartApp(appName string) error {
-	// TODO: 实现应用的重启逻辑
-	// 例如，使用Docker SDK重启容器或发送请求到一个API
-	fmt.Printf("Restarting %s...\n", appName)
-	// 模拟成功的情况
-	return nil
-}
+// GetAppStatus 获取应用状态
+func (ah *AppHandler) GetAppStatus(appName string) error {
+	logger.Logger.Infof("Getting status of %s...\n", appName)
 
-func GetAppStatus(appName string) error {
-	// TODO: 实现获取应用状态的逻辑
-	// 例如，查询Docker容器的状态或发送请求到一个API
-	fmt.Printf("Status of %s:\n", appName)
-	// 模拟输出状态
-	fmt.Println("Running")
+	// 实现获取应用状态的逻辑，例如，查询 Docker 容器的状态或发送请求到一个 API
 
 	return nil
 }
