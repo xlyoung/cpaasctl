@@ -36,7 +36,7 @@ func UpdateConfig(cfgFile, appName, configName, configValue string) error {
 	appConfig, exists := cfg.App[appName]
 	if !exists {
 		errMsg := "app not found: " + appName
-		logger.Logger.Println(errMsg) // 修改为使用 Logger
+		logger.Logger.Println(errMsg)
 		return errors.New(errMsg)
 	}
 
@@ -57,7 +57,8 @@ func UpdateConfig(cfgFile, appName, configName, configValue string) error {
 	if err := config.SaveConfig(cfg, cfgFile); err != nil {
 		logger.Logger.Printf("error writing config to file: %v", err) // 修改为使用 Logger
 		return err
+	} else {
+		logger.Logger.Infof("Updated config for %s %s is %s\n", appName, configName, configValue)
 	}
-
 	return nil
 }
