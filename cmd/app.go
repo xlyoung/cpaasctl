@@ -1,43 +1,98 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 	handler "gitlab.hycyg.com/paas-tools/cpaasctl/internal/handler"
 	"log"
 )
 
-var appCmd = &cobra.Command{
-	Use:   "app",
-	Short: "Manage applications",
+var (
+	appCmd = &cobra.Command{
+		Use:   "app",
+		Short: "Manage applications",
+	}
+	newappHandler *handler.AppHandler
+)
+
+func getAppHandler() (*handler.AppHandler, error) {
+	if newappHandler == nil {
+		var err error
+		newappHandler, err = handler.NewAppHandler()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return newappHandler, nil
 }
 
 func SetupAppCmd() {
-	newappHandler, err := handler.NewAppHandler() // 初始化 newappHandler
-	if err != nil {
-		log.Fatal(err)
+	startCmd := &cobra.Command{
+		Use:   "start [appName]",
+		Short: "Start an application",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			newappHandler, err := getAppHandler()
+			if err != nil {
+				log.Fatal(err)
+			}
+			appName := args[0]
+			err = newappHandler.StartApp(appName)
+			if err != nil {
+				log.Fatal(err)
+			}
+		},
 	}
 
-	appCommands := map[string]func(appName string) error{
-		"start":   newappHandler.StartApp,
-		"stop":    newappHandler.StopApp,
-		"restart": newappHandler.RestartApp,
-		"status":  newappHandler.GetAppStatus,
+	stopCmd := &cobra.Command{
+		Use:   "stop [appName]",
+		Short: "Stop an application",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			newappHandler, err := getAppHandler()
+			if err != nil {
+				log.Fatal(err)
+			}
+			appName := args[0]
+			err = newappHandler.StopApp(appName)
+			if err != nil {
+				log.Fatal(err)
+			}
+		},
 	}
 
-	for cmdName, cmdFunc := range appCommands {
-		cmd := &cobra.Command{
-			Use:   fmt.Sprintf("%s [appName]", cmdName),
-			Short: fmt.Sprintf("%s an application", cmdName),
-			Args:  cobra.ExactArgs(1),
-			Run: func(cmd *cobra.Command, args []string) {
-				appName := args[0]
-				err := cmdFunc(appName)
-				if err != nil {
-					log.Fatal(err)
-				}
-			},
-		}
-		appCmd.AddCommand(cmd) // 将生成的子命令添加到 appCmd
+	restartCmd := &cobra.Command{
+		Use:   "restart [appName]",
+		Short: "Restart an application",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			newappHandler, err := getAppHandler()
+			if err != nil {
+				log.Fatal(err)
+			}
+			appName := args[0]
+			err = newappHandler.RestartApp(appName)
+			if err != nil {
+				log.Fatal(err)
+			}
+		},
 	}
+
+	statusCmd := &cobra.Command{
+		Use:   "status [appName]",
+		Short: "Get status of an application",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			newappHandler, err := getAppHandler()
+			if err != nil {
+				log.Fatal(err)
+			}
+			appName := args[0]
+			err = newappHandler.GetAppStatus(appName)
+			if err != nil {
+				log.Fatal(err)
+			}
+		},
+	}
+
+	appCmd.AddCommand(startCmd, stopCmd, restartCmd, statusCmd) // 将生成的子命令添加到 appCmd
 }

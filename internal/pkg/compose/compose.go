@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/config"
+	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/logger"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -67,6 +68,8 @@ func (dc *DockerComposeImpl) runDockerComposeCommand(args []string) (string, err
 	if err != nil {
 		return "", fmt.Errorf("command failed: %v: %s", err, stderr.String())
 	}
+	logger.Logger.Infof("执行命令: %s %s\n", dc.Executable, args)
+	logger.Logger.Infof("命令输出:\n %s\n", stdout.String())
 	return stdout.String(), nil
 }
 

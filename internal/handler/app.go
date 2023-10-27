@@ -53,6 +53,10 @@ func (ah *AppHandler) StartApp(appName string) error {
 func (ah *AppHandler) StopApp(appName string) error {
 	logger.Logger.Infof("Stopping %s...\n", appName)
 
+	// 使用接口启动服务
+	if _, err := ah.dockerCompose.Down(appName); err != nil {
+		return err
+	}
 	// 实现应用的停止逻辑，例如，使用 Docker SDK 停止容器或发送请求到一个 API
 
 	return nil
@@ -62,6 +66,10 @@ func (ah *AppHandler) StopApp(appName string) error {
 func (ah *AppHandler) RestartApp(appName string) error {
 	logger.Logger.Infof("Restarting %s...\n", appName)
 
+	// 使用接口启动服务
+	if _, err := ah.dockerCompose.Restart(appName); err != nil {
+		return err
+	}
 	// 实现应用的重启逻辑，例如，使用 Docker SDK 重启容器或发送请求到一个 API
 
 	return nil
@@ -71,6 +79,10 @@ func (ah *AppHandler) RestartApp(appName string) error {
 func (ah *AppHandler) GetAppStatus(appName string) error {
 	logger.Logger.Infof("Getting status of %s...\n", appName)
 
+	// 使用接口启动服务
+	if _, err := ah.dockerCompose.Status(appName); err != nil {
+		return err
+	}
 	// 实现获取应用状态的逻辑，例如，查询 Docker 容器的状态或发送请求到一个 API
 
 	return nil
