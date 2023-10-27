@@ -15,12 +15,12 @@ var (
 			fmt.Println("Hello from your app!")
 		},
 	}
-	newappHandler *handler.AppHandler
+	//newappHandler *handler.AppHandler
 )
 
 func init() {
 	var err error
-	newappHandler, err = handler.NewAppHandler() // 初始化 newappHandler
+	newappHandler, err := handler.NewAppHandler() // 初始化 newappHandler
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,5 +46,6 @@ func init() {
 			},
 		}
 		appCmd.AddCommand(cmd) // 将生成的子命令添加到 appCmd
+		rootCmd.AddCommand(appCmd)
 	}
 }
