@@ -25,6 +25,7 @@ func Execute() {
 	// 设置标记
 
 	setupFlags()
+	setupCommands()
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "执行错误: %s\n", err)
 		os.Exit(1)
@@ -33,6 +34,14 @@ func Execute() {
 
 func setupFlags() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "cpaasconfig", "", "config file (default is /opt/cpaas/config/cpaas.yaml)")
+}
+
+func setupCommands() {
+
+	SetupConfigCmd()
+	SetupAppCmd()
+	rootCmd.AddCommand(appCmd)
+	rootCmd.AddCommand(configCmd)
 }
 
 func initConfig() {

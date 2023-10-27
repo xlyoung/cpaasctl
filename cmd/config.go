@@ -1,18 +1,14 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
-	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/handler"
+	handler "gitlab.hycyg.com/paas-tools/cpaasctl/internal/handler"
 	"log"
 )
 
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Manage app configurations",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Hello from your app!")
-	},
 }
 
 var viewCmd = &cobra.Command{
@@ -43,7 +39,6 @@ var updateCmd = &cobra.Command{
 	},
 }
 
-func init() {
+func SetupConfigCmd() {
 	configCmd.AddCommand(viewCmd, updateCmd)
-	rootCmd.AddCommand(configCmd)
 }
