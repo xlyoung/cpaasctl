@@ -7,19 +7,12 @@ import (
 	"log"
 )
 
-var (
-	appCmd = &cobra.Command{
-		Use:   "app",
-		Short: "Manage applications",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("Hello from your app!")
-		},
-	}
-	//newappHandler *handler.AppHandler
-)
+var appCmd = &cobra.Command{
+	Use:   "app",
+	Short: "Manage applications",
+}
 
-func init() {
-	var err error
+func SetupAppCmd() {
 	newappHandler, err := handler.NewAppHandler() // 初始化 newappHandler
 	if err != nil {
 		log.Fatal(err)
@@ -46,6 +39,5 @@ func init() {
 			},
 		}
 		appCmd.AddCommand(cmd) // 将生成的子命令添加到 appCmd
-		rootCmd.AddCommand(appCmd)
 	}
 }
