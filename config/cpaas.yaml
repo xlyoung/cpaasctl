@@ -14,7 +14,7 @@ app:
   console:
     version: dev-b3fff8d
   core:
-    version: dev-6e54a73
+    version: release-0.0.2
   dataview-backend:
     version: dev-51ca4ac
   frontend-console:
