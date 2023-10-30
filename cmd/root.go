@@ -33,7 +33,7 @@ func Execute() {
 }
 
 func setupFlags() {
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "cpaasconfig", "", "config file (default is /opt/cpaas/config/cpaas.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "cpaasconfig", "", "config file (default is /opt/cpaas/cpaas.yaml)")
 }
 
 func setupCommands() {
@@ -63,14 +63,14 @@ func initConfig() {
 		if err != nil {
 			cobra.CheckErr(err)
 		}
-		relativePath := filepath.Join(exeDir, "config", "cpaas.yaml")
+		relativePath := filepath.Join(exeDir, "cpaas.yaml")
 
 		if _, err := os.Stat(relativePath); !os.IsNotExist(err) {
 			// 如果相对路径下的文件存在，则使用该路径。
 			configFile = relativePath
 		} else {
 			// 如果相对路径没有找到文件，则使用默认路径。
-			configFile = "/opt/cpaas/config/cpaas.yaml"
+			configFile = "/opt/cpaas/cpaas.yaml"
 		}
 	}
 	logger.Logger.Infof("Using config file: %s\n", configFile)
