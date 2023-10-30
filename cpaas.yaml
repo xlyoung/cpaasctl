@@ -36,7 +36,7 @@ app:
   learning:
     version: dev-ccb000e
   messager:
-    version: release-0.0.2
+    version: release-0.0.3
   notification:
     version: dev-ad0bf7c
   openapi:
