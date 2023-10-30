@@ -9,7 +9,7 @@ extra_hosts:
 clone:
   image: 10.8.22.212/dockerhub/drone/git:latest
   commands:
-    - git clone https://gitlab.hycyg.com/paas-tools/cpaasctl.git
+    - git clone http://gitlab.hycyg.com/paas-tools/cpaasctl.git
 
 
 steps:
