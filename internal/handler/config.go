@@ -4,8 +4,13 @@ package handler
 
 import (
 	"errors"
+	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/compose"
 	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/config"
 	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/logger"
+	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/pkg/utils"
+	"os"
+	"path/filepath"
+	"time"
 )
 
 func ViewConfig(appName string) error {
@@ -60,5 +65,43 @@ func UpdateConfig(cfgFile, appName, configName, configValue string) error {
 	} else {
 		logger.Logger.Infof("Updated config for %s %s is %s\n", appName, configName, configValue)
 	}
+	return nil
+}
+
+func ExportDockercomposeFile(cfgFile string) error {
+
+	cfg := config.GetConfig()
+
+	projectDir := cfg.Cpaas.Base // 从配置中获取项目目录
+
+	// 目录下寻找docker-compose.yaml文件
+	dockerComposeFile := filepath.Join(projectDir, "docker-compose.yml")
+
+	envVars, err := utils.SetEnvironmentVariables(cfg)
+	if err != nil {
+		return err
+	}
+
+	project, err := compose.LoadAndInterpolateComposeFile(dockerComposeFile, envVars)
+
+	if err != nil {
+		return err
+	}
+
+	// Create the output directory if it doesn't exist
+	outputDir := filepath.Join(projectDir, "output")
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		return err
+	}
+
+	currentTime := time.Now().Format("2006-01-02-15-04-05")
+	outputPath := filepath.Join(outputDir, "docker-compose-"+currentTime+".yml")
+
+	err = compose.ExportComposeFile(project, outputPath)
+
+	if err != nil {
+		return err
+	}
+	logger.Logger.Infof("Export docker-compose file to %s\n", outputPath)
 	return nil
 }

@@ -39,6 +39,18 @@ var updateCmd = &cobra.Command{
 	},
 }
 
+var exportCmd = &cobra.Command{
+	Use:   "export ",
+	Short: "export DockerCompose file",
+	Args:  cobra.ExactArgs(0),
+	Run: func(cmd *cobra.Command, args []string) {
+		err := handler.ExportDockercomposeFile(cfgFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+	},
+}
+
 func SetupConfigCmd() {
-	configCmd.AddCommand(viewCmd, updateCmd)
+	configCmd.AddCommand(viewCmd, updateCmd, exportCmd)
 }
