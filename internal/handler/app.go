@@ -70,7 +70,6 @@ func (ah *AppHandler) RestartApp(appName string) error {
 	if _, err := ah.dockerCompose.Restart(appName); err != nil {
 		return err
 	}
-	// 实现应用的重启逻辑，例如，使用 Docker SDK 重启容器或发送请求到一个 API
 
 	return nil
 }
@@ -84,6 +83,31 @@ func (ah *AppHandler) GetAppStatus(appName string) error {
 		return err
 	}
 	// 实现获取应用状态的逻辑，例如，查询 Docker 容器的状态或发送请求到一个 API
+
+	return nil
+}
+
+// PullApp 拉取镜像
+func (ah *AppHandler) PullApp(appName string) error {
+	logger.Logger.Infof("Pulling image of %s...\n", appName)
+
+	// 使用接口启动服务
+	if _, err := ah.dockerCompose.Pull(appName); err != nil {
+		return err
+	}
+	// 实现获取应用状态的逻辑，例如，查询 Docker 容器的状态或发送请求到一个 API
+
+	return nil
+}
+
+// LogApp 显示日志
+func (ah *AppHandler) LogApp(appName string) error {
+	logger.Logger.Infof("Logging of %s...\n", appName)
+
+	// 使用接口启动服务
+	if _, err := ah.dockerCompose.Logs(appName); err != nil {
+		return err
+	}
 
 	return nil
 }
