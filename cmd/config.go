@@ -46,7 +46,7 @@ var exportCmd = &cobra.Command{
 	Short: "export DockerCompose file",
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := handler.ExportDockercomposeFile(configFile)
+		err := handler.ExportDockercomposeFile()
 		if err != nil {
 			log.Fatal(err)
 		}
