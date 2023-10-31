@@ -33,7 +33,7 @@ func ViewConfig(appName string) error {
 	return nil
 }
 
-func UpdateConfig(cfgFile, appName, configName, configValue string) error {
+func UpdateConfig(configFile, appName, configName, configValue string) error {
 	// 获取配置对象
 	cfg := config.GetConfig()
 
@@ -59,7 +59,7 @@ func UpdateConfig(cfgFile, appName, configName, configValue string) error {
 	cfg.App[appName] = appConfig
 
 	// 这里你可以将更改后的配置写回文件
-	if err := config.SaveConfig(cfg, cfgFile); err != nil {
+	if err := config.SaveConfig(cfg, configFile); err != nil {
 		logger.Logger.Printf("error writing config to file: %v", err) // 修改为使用 Logger
 		return err
 	} else {
@@ -68,7 +68,7 @@ func UpdateConfig(cfgFile, appName, configName, configValue string) error {
 	return nil
 }
 
-func ExportDockercomposeFile(cfgFile string) error {
+func ExportDockercomposeFile() error {
 
 	cfg := config.GetConfig()
 

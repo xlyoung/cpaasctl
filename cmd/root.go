@@ -19,7 +19,10 @@ var rootCmd = &cobra.Command{
 		fmt.Println("Run is being called")
 	},
 }
-var cfgFile string
+var (
+	cfgFile    string
+	configFile string // 包级别的变量
+)
 
 func Execute() {
 	// 设置标记
@@ -27,7 +30,7 @@ func Execute() {
 	setupFlags()
 	setupCommands()
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "执行错误: %s\n", err)
+		logger.Logger.Error(os.Stderr, "执行错误: %s\n", err)
 		os.Exit(1)
 	}
 }
@@ -47,7 +50,6 @@ func setupCommands() {
 
 func initConfig() {
 	// 预先定义好 configFile 变量，我们稍后会根据不同的条件来为其赋值
-	var configFile string
 
 	if cfgFile != "" {
 		// 使用命令行参数指定的配置文件。
@@ -77,7 +79,7 @@ func initConfig() {
 	// 使用确定的 configFile 初始化配置
 	if err := config.InitConfig(configFile); err != nil {
 		// 此处可以根据需要打印错误或执行其他错误处理
-		fmt.Fprintf(os.Stderr, "Error initializing config: %s\n", err)
+		logger.Logger.Error(os.Stderr, "Error initializing config: %s\n", err)
 		os.Exit(1) //
 	}
 }
