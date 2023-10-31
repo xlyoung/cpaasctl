@@ -69,7 +69,12 @@ func (dc *DockerComposeImpl) runDockerComposeCommand(args []string) (string, err
 		return "", fmt.Errorf("command failed: %v: %s", err, stderr.String())
 	}
 	logger.Logger.Infof("执行命令: %s %s\n", dc.Executable, args)
-	logger.Logger.Infof("命令输出:\n %s\n", stdout.String())
+	if stdout.Len() > 0 {
+		logger.Logger.Infof("命令stdout输出:\n%s\n", stdout.String())
+	}
+	if stderr.Len() > 0 {
+		logger.Logger.Infof("命令stderr输出:\n%s\n", stderr.String())
+	}
 	return stdout.String(), nil
 }
 

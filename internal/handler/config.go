@@ -51,7 +51,7 @@ func UpdateConfig(configFile, appName, configName, configValue string) error {
 		appConfig.Version = configValue
 	default:
 		errMsg := "unknown config name: " + configName
-		logger.Logger.Println(errMsg) // 修改为使用 Logger
+		logger.Logger.Errorf(errMsg) // 修改为使用 Logger
 		return errors.New(errMsg)
 	}
 
