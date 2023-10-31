@@ -1,38 +1,10 @@
 kind: pipeline
+type: docker
 name: default
 
-
-
-extra_hosts:
-  - "gitlab.hycyg.com:10.8.22.102"
-
 clone:
-  image: 10.8.22.212/dockerhub/drone/git:latest
-  commands:
-    - git clone http://gitlab.hycyg.com/paas-tools/cpaasctl.git
-
+  disable: true
 
 steps:
-  - name: build
-    image: 10.8.22.212/paas/golang:1.20-fix-gitssh
-    commands:
-      - go build main.go -o cpctl
-
-  - name: docker
-    image: plugins/docker
-    settings:
-      repo: 10.8.22.212/paas-tools/cpctl
-      tags: [ latest ]
-      dockerfile: Dockerfile
-      context: .
-      registry: 10.8.22.212
-      username: cibot
-      password: Cyg88606
-
-  - name: notify
-    image: plugins/slack
-    settings:
-      webhook:
-        from_secret: slack_webhook
-      channel: your-channel
-      username: drone
+  - name: 拉取代码
+    image: 10.8.22.212/drone/git:latest
