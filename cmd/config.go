@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	handler "gitlab.hycyg.com/paas-tools/cpaasctl/internal/handler"
+	"gitlab.hycyg.com/paas-tools/cpaasctl/internal/logger"
 	"log"
 )
 
@@ -32,7 +33,8 @@ var updateCmd = &cobra.Command{
 		appName := args[0]
 		configName := args[1]
 		configValue := args[2]
-		err := handler.UpdateConfig(cfgFile, appName, configName, configValue)
+		logger.Logger.Infof("configFile: %s", configFile)
+		err := handler.UpdateConfig(configFile, appName, configName, configValue)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -44,7 +46,7 @@ var exportCmd = &cobra.Command{
 	Short: "export DockerCompose file",
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := handler.ExportDockercomposeFile(cfgFile)
+		err := handler.ExportDockercomposeFile(configFile)
 		if err != nil {
 			log.Fatal(err)
 		}
