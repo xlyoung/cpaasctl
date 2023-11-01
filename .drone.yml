@@ -38,5 +38,6 @@ steps:
       GOOS: linux
       GOARCH: amd64
       CGO_ENABLED: 0
+      TARGET: dist/$(SERVER_NAME)
     commands:
       - make build_server_linux
