@@ -1,3 +1,20 @@
+kind: secret
+name: docker_username
+get:
+  path: secrets
+  name: docker_username
+---
+
+kind: secret
+name: docker_password
+get:
+  path: secrets
+  name: docker_password
+---
+
+
+
+
 kind: pipeline
 type: docker
 name: default
