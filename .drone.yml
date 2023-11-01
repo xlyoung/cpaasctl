@@ -22,14 +22,21 @@ name: default
 clone:
   disable: true
 
+environment:
+  SERVER_NAME: cpctl
+  GOPROXY: http://10.8.22.212:8081/repository/go-group/,direct
+  GIT_NAME: gitlab.hycyg.com
+  GIT_IP: 10.8.22.102
+
 steps:
   - name: 拉取代码
     image: 10.8.22.212/drone/git:latest
+
+  - name: 构建代码
+    image: 10.8.22.212/paas/golang:1.20-fix-gitssh
     environment:
-      USERNAME:
-        from_secret: docker_username
-      PASSWORD:
-        from_secret: docker_password
+      GOOS: linux
+      GOARCH: amd64
+      CGO_ENABLED: 0
     commands:
-      - echo $USERNAME
-      - echo $PASSWORD
+      - make build_server_linux
