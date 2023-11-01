@@ -25,3 +25,11 @@ clone:
 steps:
   - name: 拉取代码
     image: 10.8.22.212/drone/git:latest
+    environment:
+      USERNAME:
+        from_secret: docker_username
+      PASSWORD:
+        from_secret: docker_password
+    commands:
+      - echo $USERNAME
+      - echo $PASSWORD
