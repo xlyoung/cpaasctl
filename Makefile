@@ -9,4 +9,4 @@ build_server_linux:
 	go env -w GONOSUMDB=$(GIT_NAME)
 	git config --global url."git@$(GIT_NAME):".insteadOf "http://$(GIT_NAME)"
 	go mod tidy
-	CGO_ENABLED=0 GOARCH=$(GOARCH) GOOS=$(GOOS) go build -o $(SERVER_NAME)
+	CGO_ENABLED=0 GOARCH=$(GOARCH) GOOS=$(GOOS) go build -o $(TARGET)
