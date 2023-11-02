@@ -1,43 +1,47 @@
-kind: secret
-name: docker_username
-get:
-  path: secrets
-  name: docker_username
----
-
-kind: secret
-name: docker_password
-get:
-  path: secrets
-  name: docker_password
----
-
-
-
-
 kind: pipeline
 type: docker
-name: default
+name: 发布
+
 
 clone:
   disable: true
 
+
 environment:
-  SERVER_NAME: cpctl
-  GOPROXY: http://10.8.22.212:8081/repository/go-group/,direct
-  GIT_NAME: gitlab.hycyg.com
-  GIT_IP: 10.8.22.102
+  NAME: cpctl
+  OUTPUT_LINUX: cpctl.amd64.lin
+  OUTPUT_WINDOWS: cpctl.amd64.exe
+  OUTPUT_MAC: cpctl.amd64.mac
+  CHANGELOG_TAG_OUTPUT: CHANGELOG.tag.md
+
 
 steps:
-  - name: 拉取代码
-    image: 10.8.22.212/drone/git:latest
+  - name: 取码
+    image: ccr.ccs.tencentyun.com/dronestock/git
+    pull: always
 
-  - name: 构建代码
-    image: 10.8.22.212/paas/golang:1.20-fix-gitssh
-    environment:
-      GOOS: linux
-      GOARCH: amd64
-      CGO_ENABLED: 0
-      TARGET: dist/$(SERVER_NAME)
-    commands:
-      - make build_server_linux
+  - name: 编译
+    image: ccr.ccs.tencentyun.com/pangum/drone
+    pull: always
+    volumes:
+      - name: go
+        path: /var/lib/go
+    settings:
+      outputs:
+        - name: $${NAME}
+          os: linux
+          arch: amd64
+        - name: $${OUTPUT_LINUX}
+          os: linux
+          arch: amd64
+        - name: $${OUTPUT_WINDOWS}
+          os: windows
+          arch: amd64
+        - name: $${OUTPUT_MAC}
+          os: darwin
+          arch: amd64
+
+volumes:
+  - name: go
+    host:
+      path: /var/lib/cache/go
