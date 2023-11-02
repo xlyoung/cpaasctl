@@ -27,6 +27,8 @@ steps:
       - name: go
         path: /var/lib/go
     settings:
+      lint:
+        enabled: false
       outputs:
         - name: $${NAME}
           os: linux
