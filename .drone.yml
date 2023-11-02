@@ -17,7 +17,7 @@ environment:
 
 steps:
   - name: 取码
-    image:  10.8.22.212/drone/git:v0.0.1
+    image:  10.8.22.212/drone/git:v0.0.2
     pull: always
 
   - name: 编译
