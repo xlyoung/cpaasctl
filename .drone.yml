@@ -64,10 +64,11 @@ steps:
       TEST_DOCKER_PASSWORD:
         from_secret: docker_password
     commands:
-      - echo "Testing Docker login with secret credentials"
-      - docker login -u TEST_DOCKER_USERNAME -p TEST_DOCKER_PASSWORD 10.8.22.212
-      - echo "Testing SSH connection with secret credentials"
       - echo $TEST122
+      - echo "Testing Docker login with secret credentials"
+      - docker login -u $TEST_DOCKER_USERNAME -p $TEST_DOCKER_PASSWORD 10.8.22.212
+      - echo "Testing SSH connection with secret credentials"
+
 
 #
 #  - name: 构建代码
