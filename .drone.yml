@@ -1,20 +1,20 @@
 kind: secret
 name: docker_username
 get:
-  path: secrets
+  path: secrets/cpaas/docker
   name: docker_username
 ---
 kind: secret
 name: docker_password
 get:
-  path: secrets
+  path: secrets/cpaas/docker
   name: docker_password
 ---
 kind: secret
 name: 122_ssh_password
 get:
-  path: secrets
-  name: 122_ssh_password
+  path: secrets/cpaas/ssh
+  name: 122_password
 ---
 
 
@@ -58,7 +58,7 @@ steps:
     image: plugins/docker
     environment:
       TEST122:
-        from_secret: 122_ssh_password
+        from_secret: 122_password
       TEST_DOCKER_USERNAME:
         from_secret: docker_username
       TEST_DOCKER_PASSWORD:
