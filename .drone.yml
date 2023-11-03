@@ -92,5 +92,31 @@ steps:
     when:
         branch:
             - dev
+            - hostfix/*
+            - support/*
+            - bugfix/*
         event:
             - push
+
+  - name: 应用部署-docker-test
+    image: 10.8.22.212/dockerhub/appleboy/drone-ssh:1.7.0
+    settings:
+      host:
+        - 10.8.22.250
+      username: root
+      password:
+        from_secret: 122_ssh_password
+      port: 22
+      command_timeout: 30m
+      script:
+        - cpctl config update ${SERVER_NAME} version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+        - cpctl app restart ${SERVER_NAME}
+    depends_on:
+      - 镜像推送
+    when:
+      branch:
+        - release/*
+        - release*
+        - main
+      event:
+        - push
