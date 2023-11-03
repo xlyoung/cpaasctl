@@ -1,19 +1,19 @@
 kind: secret
 name: docker_username
 get:
-  path: secrets/cpaas/docker
+  path: cpaas/data/docker
   name: docker_username
 ---
 kind: secret
 name: docker_password
 get:
-  path: secrets/cpaas/docker
+  path: cpaas/data/docker
   name: docker_password
 ---
 kind: secret
 name: 122_ssh_password
 get:
-  path: secrets/cpaas/ssh
+  path: cpaas/data/ssh
   name: 122_password
 ---
 
