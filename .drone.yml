@@ -74,7 +74,7 @@ steps:
     image: appleboy/drone-ssh
     settings:
       host:
-        - 10.8.22.122
+        - 10.8.22.250
       username: root
       password:
         from_secret: 122_ssh_password
