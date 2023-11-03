@@ -48,7 +48,7 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      repo: ${REPO}
+      repo: 10.8.22.212/paas/cpctl
       tag:
         - ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
       insecure: true
