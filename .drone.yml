@@ -54,9 +54,6 @@ steps:
   - name: 拉取代码
     image: 10.8.22.212/drone/git:latest
 
-
-
-
   - name: 构建代码
     image: 10.8.22.212/paas/golang:1.20-fix-gitssh
     environment:
@@ -70,7 +67,7 @@ steps:
       - 拉取代码
 
   - name: 镜像推送
-    image: 10.8.22.212/dockerhub/plugins/docker:20.17
+    image: 10.8.22.212/dockerhub/plugins/docker
     settings:
       debug: true
       dockerfile: Dockerfile
