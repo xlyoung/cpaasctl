@@ -55,7 +55,7 @@ steps:
     image: 10.8.22.212/drone/git:latest
 
   - name: 测试密钥
-    image: 10.8.22.212/paas/golang:1.20-fix-gitssh
+    image: plugins/docker
     environment:
       TEST122:
         from_secret: 122_ssh_password
@@ -64,8 +64,8 @@ steps:
       TEST_DOCKER_PASSWORD:
         from_secret: docker_password
     commands:
-      - printenv
-      - echo ${TEST122}
+      - echo "Testing Docker login with secret credentials"
+      - docker login -u ${TEST_DOCKER_USERNAME} -p ${TEST_DOCKER_PASSWORD}
 #      - echo "Testing Docker login with secret credentials"
 #      - docker login -u $TEST_DOCKER_USERNAME -p $TEST_DOCKER_PASSWORD 10.8.22.212
 #      - echo "Testing SSH connection with secret credentials"
