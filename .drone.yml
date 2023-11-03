@@ -10,6 +10,14 @@ get:
   path: secrets
   name: docker_password
 ---
+kind: secret
+name: 122_ssh_password
+get:
+  path: secrets
+  name: 122_ssh_password
+---
+
+
 
 kind: pipeline
 type: docker
@@ -46,77 +54,93 @@ steps:
   - name: 拉取代码
     image: 10.8.22.212/drone/git:latest
 
-  - name: 构建代码
+  - name: 测试密钥
     image: 10.8.22.212/paas/golang:1.20-fix-gitssh
     environment:
-      GOOS: linux
-      GOARCH: amd64
-      CGO_ENABLED: 0
-    commands:
-      - make build_server_linux
-#      - printenv
-    depends_on:
-      - 拉取代码
-
-  - name: 镜像推送
-    image: plugins/docker
-    settings:
-      debug: true
-      dockerfile: Dockerfile
-      username:
+      TEST122:
+        from_secret: 122_ssh_password
+      TEST_DOCKER_USERNAME:
         from_secret: docker_username
-      password:
+      TEST_DOCKER_PASSWORD:
         from_secret: docker_password
-      tag:
-        - ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-      insecure: true
-      registry: 10.8.22.212
-    depends_on:
-      - 构建代码
+    commands:
+      - echo "Testing Docker login with secret credentials"
+      - docker login -u TEST_DOCKER_USERNAME -p TEST_DOCKER_PASSWORD 10.8.22.212
+      - echo "Testing SSH connection with secret credentials"
+      - echo $TEST122
 
-  - name: 应用部署-docker-dev
-    image: 10.8.22.212/dockerhub/appleboy/drone-ssh:1.7.0
-    settings:
-      host:
-        - 10.8.22.250
-      username: root
-      password:
-        from_secret: 122_ssh_password
-      port: 22
-      command_timeout: 30m
-      script:
-        - cpctl config update ${SERVER_NAME} version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-        - cpctl app restart ${SERVER_NAME}
-    depends_on:
-      - 镜像推送
-    when:
-        branch:
-            - dev
-            - hostfix/*
-            - support/*
-            - bugfix/*
-        event:
-            - push
-
-  - name: 应用部署-docker-test
-    image: 10.8.22.212/dockerhub/appleboy/drone-ssh:1.7.0
-    settings:
-      host:
-        - 10.8.22.250
-      username: root
-      password:
-        from_secret: 122_ssh_password
-      port: 22
-      command_timeout: 30m
-      script:
-        - cpctl config update ${SERVER_NAME} version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-        - cpctl app restart ${SERVER_NAME}
-    depends_on:
-      - 镜像推送
-    when:
-      branch:
-        - release/*
-        - release*
-        - main
-      event:
-        - push
+#
+#  - name: 构建代码
+#    image: 10.8.22.212/paas/golang:1.20-fix-gitssh
+#    environment:
+#      GOOS: linux
+#      GOARCH: amd64
+#      CGO_ENABLED: 0
+#    commands:
+#      - make build_server_linux
+##      - printenv
+#    depends_on:
+#      - 拉取代码
+#
+#  - name: 镜像推送
+#    image: plugins/docker
+#    settings:
+#      debug: true
+#      dockerfile: Dockerfile
+#      username:
+#        from_secret: docker_username
+#      password:
+#        from_secret: docker_password
+#      tag:
+#        - ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+#      insecure: true
+#      registry: 10.8.22.212
+#    depends_on:
+#      - 构建代码
+#
+#  - name: 应用部署-docker-dev
+#    image: 10.8.22.212/dockerhub/appleboy/drone-ssh:1.7.0
+#    settings:
+#      host:
+#        - 10.8.22.250
+#      username: root
+#      password:
+#        from_secret: 122_ssh_password
+#      port: 22
+#      command_timeout: 30m
+#      script:
+#        - cpctl config update ${SERVER_NAME} version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+#        - cpctl app restart ${SERVER_NAME}
+#    depends_on:
+#      - 镜像推送
+#    when:
+#        branch:
+#            - dev
+#            - hostfix/*
+#            - support/*
+#            - bugfix/*
+#        event:
+#            - push
+#
+#  - name: 应用部署-docker-test
+#    image: 10.8.22.212/dockerhub/appleboy/drone-ssh:1.7.0
+#    settings:
+#      host:
+#        - 10.8.22.250
+#      username: root
+#      password:
+#        from_secret: 122_ssh_password
+#      port: 22
+#      command_timeout: 30m
+#      script:
+#        - cpctl config update ${SERVER_NAME} version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+#        - cpctl app restart ${SERVER_NAME}
+#    depends_on:
+#      - 镜像推送
+#    when:
+#      branch:
+#        - release/*
+#        - release*
+#        - main
+#      event:
+#        - push
