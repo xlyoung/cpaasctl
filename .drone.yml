@@ -64,6 +64,7 @@ steps:
       TEST_DOCKER_PASSWORD:
         from_secret: docker_password
     commands:
+      - printenv
       - echo "Testing Docker login with secret credentials"
       - docker login -u $TEST_DOCKER_USERNAME -p ${TEST_DOCKER_PASSWORD}
 #      - echo "Testing Docker login with secret credentials"
