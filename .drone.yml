@@ -84,17 +84,21 @@ steps:
 
   - name: 应用部署-docker-dev
     image: 10.8.22.212/dockerhub/appleboy/drone-ssh:1.7.0
+    environment:
+      SERVER_NAME: ${SERVER_NAME}
     settings:
       host:
-        - 10.8.22.250
+        - ${SSH_HOST}
       username: root
       password:
         from_secret: 122_ssh_password
       port: 22
       command_timeout: 30m
+      envs:
+        - server_name
       script:
-        - cpctl config update ${SERVER_NAME} version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-        - cpctl app restart ${SERVER_NAME}
+        - cpctl config update $SERVER_NAME version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+        - cpctl app restart $SERVER_NAME
     depends_on:
       - 镜像推送
     when:
@@ -121,15 +125,30 @@ steps:
       envs:
         - server_name
       script:
-        - printenv
         - cpctl config update $SERVER_NAME version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
         - cpctl app restart $SERVER_NAME
     depends_on:
       - 镜像推送
     when:
+      matrix:
+        DEPLOY_ENV: [dev, test]
+
+
+
+
+
+matrix:
+  include:
+    - DEPLOY_ENV: dev
+      SSH_HOST: 10.8.22.250 # Dev环境的主机
+      branch:
+        - dev
+        - hotfix/*
+        - support/*
+        - bugfix/*
+    - DEPLOY_ENV: test
+      SSH_HOST: 10.8.22.251 # Test环境的主机
       branch:
         - release/*
         - release*
         - main
-      event:
-        - push
