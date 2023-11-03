@@ -54,7 +54,9 @@ steps:
       CGO_ENABLED: 0
     commands:
       - make build_server_linux
-      - printenv
+#      - printenv
+    depends_on:
+      - 拉取代码
 
   - name: 镜像推送
     image: plugins/docker
@@ -69,9 +71,11 @@ steps:
         - ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
       insecure: true
       registry: 10.8.22.212
+    depends_on:
+      - 构建代码
 
-  - name: 应用部署-docker
-    image: appleboy/drone-ssh
+  - name: 应用部署-docker-dev
+    image: 10.8.22.212/dockerhub/appleboy/drone-ssh:1.7.0
     settings:
       host:
         - 10.8.22.250
@@ -83,3 +87,10 @@ steps:
       script:
         - cpctl config update ${SERVER_NAME} version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
         - cpctl app restart ${SERVER_NAME}
+    depends_on:
+      - 镜像推送
+    when:
+        branch:
+            - dev
+        event:
+            - push
