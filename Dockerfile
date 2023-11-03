@@ -1,0 +1,9 @@
+FROM 10.8.22.212/pass/ubuntu:22.04
+
+
+WORKDIR /
+
+COPY $SERVER_NAME /
+
+
+CMD ./$SERVER_NAME

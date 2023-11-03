@@ -4,16 +4,12 @@ get:
   path: secrets
   name: docker_username
 ---
-
 kind: secret
 name: docker_password
 get:
   path: secrets
   name: docker_password
 ---
-
-
-
 
 kind: pipeline
 type: docker
@@ -38,7 +34,23 @@ steps:
       GOOS: linux
       GOARCH: amd64
       CGO_ENABLED: 0
-      TARGET: $$(SERVER_NAME)
     commands:
-#      - make build_server_linux
+      - make build_server_linux
       - printenv
+
+  - name: 镜像推送
+    image: plugins/docker
+    settings:
+      debug: true
+      dockerfile: Dockerfile
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      repo: 10.8.22.212/paas/${SERVER_NAME}
+      tag:
+        - ${DRONE_COMMIT_BRANCH}-${DRONE_BUILD_NUMBER}
+      insecure: true
+      registry: 10.8.22.212
+      build_args:
+        SERVER_NAME: ${SERVER_NAME}
