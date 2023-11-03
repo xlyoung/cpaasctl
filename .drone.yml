@@ -122,8 +122,8 @@ steps:
         - server_name
       script:
         - printenv
-        - cpctl config update ${SERVER_NAME} version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-        - cpctl app restart ${SERVER_NAME}
+        - cpctl config update $SERVER_NAME version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+        - cpctl app restart $SERVER_NAME
     depends_on:
       - 镜像推送
     when:
