@@ -15,6 +15,22 @@ kind: pipeline
 type: docker
 name: default
 
+trigger:
+  branch:
+    - dev
+    - main
+    - release/*
+    - release*
+    - hotfix/*
+    - support/*
+    - bugfix/*
+  event:
+    - push
+
+platform:
+  os: linux
+  arch: amd64
+
 clone:
   disable: true
 
