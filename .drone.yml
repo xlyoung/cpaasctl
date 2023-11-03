@@ -47,10 +47,10 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      repo: 10.8.22.212/paas/$SERVER_NAME
+      repo: 10.8.22.212/paas/${SERVER_NAME}
       tag:
         - ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
       insecure: true
       registry: 10.8.22.212
       build_args:
-        SERVER_NAME: $SERVER_NAME
+        SERVER_NAME: ${SERVER_NAME}
