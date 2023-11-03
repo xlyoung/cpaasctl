@@ -39,7 +39,7 @@ environment:
   GOPROXY: http://10.8.22.212:8081/repository/go-group/,direct
   GIT_NAME: gitlab.hycyg.com
   GIT_IP: 10.8.22.102
-  REPO: 10.8.22.212/paas/cpctl
+  PLUGIN_REPO: 10.8.22.212/paas/cpctl
 
 steps:
   - name: 拉取代码
@@ -64,7 +64,7 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      repo: 10.8.22.212/paas/cpctl
+#      repo: 10.8.22.212/paas/cpctl
       tag:
         - ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
       insecure: true
