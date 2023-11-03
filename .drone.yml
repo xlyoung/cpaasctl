@@ -39,6 +39,7 @@ environment:
   GOPROXY: http://10.8.22.212:8081/repository/go-group/,direct
   GIT_NAME: gitlab.hycyg.com
   GIT_IP: 10.8.22.102
+# 定义传递给 repo使用的环境变量
   PLUGIN_REPO: 10.8.22.212/paas/cpctl
 
 steps:
@@ -64,10 +65,21 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-#      repo: 10.8.22.212/paas/cpctl
       tag:
         - ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
       insecure: true
       registry: 10.8.22.212
-#      build_args:
-#        SERVER_NAME: ${SERVER_NAME}
+
+  - name: 应用部署-docker
+    image: appleboy/drone-ssh
+    settings:
+      host:
+        - 10.8.22.122
+      username: root
+      password:
+        from_secret: 122_ssh_password
+      port: 22
+      command_timeout: 30m
+      script:
+        - cpctl config update ${SERVER_NAME} version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+        - cpctl app restart ${SERVER_NAME}
