@@ -16,7 +16,19 @@ get:
   path: cpaas/data/ssh
   name: 122_password
 ---
+kind: secret
+name: 231_token
+get:
+  path: cpaas/data/kubernetes
+  name: 231_token
+---
 
+kind: secret
+name: 241_token
+get:
+  path: cpaas/data/kubernetes
+  name: 241_token
+---
 
 
 kind: pipeline
@@ -43,16 +55,32 @@ clone:
   disable: true
 
 environment:
+  #每个项目 都要需要修改  SERVER_NAME，SERVICE_PORT，CHART_FILE(部分修改）
+  ## 需要修改##
   SERVER_NAME: cpctl
+
+  ##根据环境不同区分##
+  ##dev
+  DEV_SSH_HOST: 10.8.22.250
+  ##test
+  TEST_SSH_HOST: 10.8.22.222
+
+  #编译配置
   GOPROXY: http://10.8.22.212:8081/repository/go-group/,direct
   GIT_NAME: gitlab.hycyg.com
   GIT_IP: 10.8.22.102
-# 定义传递给 repo使用的环境变量
-  PLUGIN_REPO: 10.8.22.212/paas/cpctl
+  VERSION: ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
 
 steps:
   - name: 拉取代码
     image: 10.8.22.212/drone/git:latest
+
+  - name: lint
+    image: 10.8.22.212/dockerhub/golangci/golangci-lint:v1.55 # 使用golangci-lint的Docker镜像
+    commands:
+      - golangci-lint run --out-format=colored-line-number   # 运行golangci-lint
+    when:
+      event: [ push, pull_request ]
 
   - name: 构建代码
     image: 10.8.22.212/paas/golang:1.20-fix-gitssh
@@ -60,95 +88,76 @@ steps:
       GOOS: linux
       GOARCH: amd64
       CGO_ENABLED: 0
+      VERSION: ${VERSION}
     commands:
       - make build_server_linux
-#      - printenv
-    depends_on:
-      - 拉取代码
-
-  - name: 镜像推送
-    image: plugins/docker
-    settings:
-      debug: true
-      dockerfile: Dockerfile
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      tag:
-        - ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-      insecure: true
-      registry: 10.8.22.212
-    depends_on:
-      - 构建代码
 
   - name: 应用部署-docker-dev
-    image: 10.8.22.212/dockerhub/appleboy/drone-ssh:1.7.0
+    image: 10.8.22.212/dockerhub/appleboy/drone-scp
     environment:
       SERVER_NAME: ${SERVER_NAME}
     settings:
-      host:
-        - ${SSH_HOST}
+      host: ${DEV_SSH_HOST}
       username: root
       password:
         from_secret: 122_ssh_password
       port: 22
       command_timeout: 30m
-      envs:
-        - server_name
-      script:
-        - cpctl config update $SERVER_NAME version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-        - cpctl app restart $SERVER_NAME
-    depends_on:
-      - 镜像推送
+      target: /opt/cpaas/
+      source: ${SERVER_NAME}
     when:
-        branch:
-            - dev
-            - hostfix/*
-            - support/*
-            - bugfix/*
-        event:
-            - push
+      branch:
+        - dev
+        - hostfix/*
+        - support/*
+        - bugfix/*
+      event:
+        - push
 
   - name: 应用部署-docker-test
     image: 10.8.22.212/dockerhub/appleboy/drone-ssh:1.7.0
     environment:
       SERVER_NAME: ${SERVER_NAME}
     settings:
-      host:
-        - 10.8.22.250
+      host: ${TEST_SSH_HOST}
       username: root
       password:
         from_secret: 122_ssh_password
       port: 22
       command_timeout: 30m
-      envs:
-        - server_name
-      script:
-        - cpctl config update $SERVER_NAME version ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-        - cpctl app restart $SERVER_NAME
-    depends_on:
-      - 镜像推送
+      target: /opt/cpaas/
+      source: ${SERVER_NAME}
     when:
-      matrix:
-        DEPLOY_ENV: [dev, test]
-
-
-
-
-
-matrix:
-  include:
-    - DEPLOY_ENV: dev
-      SSH_HOST: 10.8.22.250 # Dev环境的主机
-      branch:
-        - dev
-        - hotfix/*
-        - support/*
-        - bugfix/*
-    - DEPLOY_ENV: test
-      SSH_HOST: 10.8.22.251 # Test环境的主机
       branch:
         - release/*
         - release*
         - main
+      event:
+        - push
+
+  - name: 企业微信通知
+    image: 10.8.22.212/dockerhub/plugins/webhook
+    environment:
+      VERSION: ${VERSION}
+    settings:
+      debug: true
+      urls: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=521d7fbb-62b8-4ed9-9c25-660852d6895e
+      content_type: application/json
+      template: |
+        {
+          "msgtype": "markdown",
+          "markdown": {
+              "content": "{{#success build.status}}✅{{else}}❌{{/success}}**{{ repo.owner }}/{{ repo.name }}** (Build #{{build.number}})\n
+                          >**构建结果**: {{ build.status }}
+                          >**构建详情**: [点击查看]({{ build.link }})
+                          >**代码分支**: {{ build.branch }}
+                          >**提交标识**: {{ build.commit }}
+                          >**提交发起**: {{ build.author }}
+                          >**提交信息**: {{ build.message }}
+        "
+          }
+        }
+    when:
+      status:
+        - success
+        - failure

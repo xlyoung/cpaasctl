@@ -40,12 +40,10 @@ func setupFlags() {
 }
 
 func setupCommands() {
-
 	SetupConfigCmd()
 	rootCmd.AddCommand(configCmd)
 	SetupAppCmd()
 	rootCmd.AddCommand(appCmd)
-
 }
 
 func initConfig() {
