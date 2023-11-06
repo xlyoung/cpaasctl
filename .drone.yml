@@ -117,7 +117,7 @@ steps:
         - push
 
   - name: 应用部署-docker-test
-    image: 10.8.22.212/dockerhub/appleboy/drone-ssh:1.7.0
+    image: 10.8.22.212/dockerhub/appleboy/drone-scp
     environment:
       SERVER_NAME: ${SERVER_NAME}
       TEST_SSH_HOST: ${TEST_SSH_HOST}
