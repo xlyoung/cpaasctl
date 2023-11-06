@@ -63,7 +63,7 @@ environment:
   ##dev
   DEV_SSH_HOST: 10.8.22.250
   ##test
-  TEST_SSH_HOST: 10.8.22.222
+  TEST_SSH_HOST: 10.8.22.250
 
   #编译配置
   GOPROXY: http://10.8.22.212:8081/repository/go-group/,direct
@@ -96,6 +96,7 @@ steps:
     image: 10.8.22.212/dockerhub/appleboy/drone-scp
     environment:
       SERVER_NAME: ${SERVER_NAME}
+      DEV_SSH_HOST: ${DEV_SSH_HOST}
     settings:
       host: ${DEV_SSH_HOST}
       username: root
@@ -118,6 +119,7 @@ steps:
     image: 10.8.22.212/dockerhub/appleboy/drone-ssh:1.7.0
     environment:
       SERVER_NAME: ${SERVER_NAME}
+      TEST_SSH_HOST: ${TEST_SSH_HOST}
     settings:
       host: ${TEST_SSH_HOST}
       username: root
