@@ -30,7 +30,7 @@ func Execute() {
 	setupFlags()
 	setupCommands()
 	if err := rootCmd.Execute(); err != nil {
-		logger.Logger.Error(os.Stderr, "执行错误: %s\n", err)
+		logger.Logger.Errorf("执行错误: %s\n", err)
 		os.Exit(1)
 	}
 }
@@ -77,7 +77,7 @@ func initConfig() {
 	// 使用确定的 configFile 初始化配置
 	if err := config.InitConfig(configFile); err != nil {
 		// 此处可以根据需要打印错误或执行其他错误处理
-		logger.Logger.Error(os.Stderr, "Error initializing config: %s\n", err)
+		logger.Logger.Errorf("Error initializing config: %s\n", err)
 		os.Exit(1) //
 	}
 }
