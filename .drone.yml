@@ -98,6 +98,7 @@ steps:
       SERVER_NAME: ${SERVER_NAME}
       DEV_SSH_HOST: ${DEV_SSH_HOST}
     settings:
+      debug: true
       host: ${DEV_SSH_HOST}
       username: root
       password:
@@ -121,6 +122,7 @@ steps:
       SERVER_NAME: ${SERVER_NAME}
       TEST_SSH_HOST: ${TEST_SSH_HOST}
     settings:
+      debug: true
       host: ${TEST_SSH_HOST}
       username: root
       password:
