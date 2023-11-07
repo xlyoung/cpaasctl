@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v2"
-	"io/ioutil"
+	"os"
 )
 
 type AppConfig struct {
@@ -57,7 +57,7 @@ func SaveConfig(cfg *Config, filePath string) error {
 		return err
 	}
 
-	err = ioutil.WriteFile(filePath, data, 0644)
+	err = os.WriteFile(filePath, data, 0644)
 	if err != nil {
 		return err
 	}
