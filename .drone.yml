@@ -96,17 +96,11 @@ steps:
     image: 10.8.22.212/dockerhub/appleboy/drone-scp
     environment:
       SERVER_NAME: ${SERVER_NAME}
-      DEV_SSH_HOST: ${DEV_SSH_HOST}
-    settings:
-      debug: true
-      host: ${DEV_SSH_HOST}
-      username: root
+      TEST_SSH_HOST: ${DEV_SSH_HOST}
       password:
         from_secret: 122_ssh_password
-      port: 22
-      command_timeout: 30m
-      target: /opt/cpaas/
-      source: ${SERVER_NAME}
+    commands:
+      - drone-scp --host $TEST_SSH_HOST --port 22 --username root --password $password --target /opt/cpaas/ --source $SERVER_NAME
     when:
       branch:
         - dev
@@ -124,8 +118,14 @@ steps:
       password:
         from_secret: 122_ssh_password
     commands:
-      - printenv
       - drone-scp --host $TEST_SSH_HOST --port 22 --username root --password $password --target /opt/cpaas/ --source $SERVER_NAME
+    when:
+      branch:
+        - release/*
+        - release*
+        - main
+      event:
+        - push
 
   - name: 企业微信通知
     image: 10.8.22.212/dockerhub/plugins/webhook
