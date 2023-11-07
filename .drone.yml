@@ -64,6 +64,8 @@ environment:
   DEV_SSH_HOST: 10.8.22.250
   ##test
   TEST_SSH_HOST: 10.8.22.250
+  ##prod
+  PROD_SSH_HOST: 10.8.22.250
 
   #编译配置
   GOPROXY: http://10.8.22.212:8081/repository/go-group/,direct
@@ -96,11 +98,11 @@ steps:
     image: 10.8.22.212/dockerhub/appleboy/drone-scp
     environment:
       SERVER_NAME: ${SERVER_NAME}
-      TEST_SSH_HOST: ${DEV_SSH_HOST}
+      SSH_HOST: ${DEV_SSH_HOST}
       password:
         from_secret: 122_ssh_password
     commands:
-      - drone-scp --host $TEST_SSH_HOST --port 22 --username root --password $password --target /opt/cpaas/ --source $SERVER_NAME
+      - drone-scp --host $SSH_HOST --port 22 --username root --password $password --target /opt/cpaas/ --source $SERVER_NAME
     when:
       branch:
         - dev
@@ -114,11 +116,11 @@ steps:
     image: 10.8.22.212/dockerhub/appleboy/drone-scp
     environment:
       SERVER_NAME: ${SERVER_NAME}
-      TEST_SSH_HOST: ${TEST_SSH_HOST}
+      SSH_HOST: ${TEST_SSH_HOST}
       password:
         from_secret: 122_ssh_password
     commands:
-      - drone-scp --host $TEST_SSH_HOST --port 22 --username root --password $password --target /opt/cpaas/ --source $SERVER_NAME
+      - drone-scp --host $SSH_HOST --port 22 --username root --password $password --target /opt/cpaas/ --source $SERVER_NAME
     when:
       branch:
         - release/*
@@ -126,6 +128,21 @@ steps:
         - main
       event:
         - push
+
+  - name: 应用部署-docker-prod
+    image: 10.8.22.212/dockerhub/appleboy/drone-scp
+    environment:
+      SERVER_NAME: ${SERVER_NAME}
+      SSH_HOST: ${PROD_SSH_HOST}
+      password:
+        from_secret: 122_ssh_password
+    commands:
+      - drone-scp --host $SSH_HOST --port 22 --username root --password $password --target /opt/cpaas/ --source $SERVER_NAME
+    when:
+      event:
+        - promote
+      target:
+        - prod
 
   - name: 企业微信通知
     image: 10.8.22.212/dockerhub/plugins/webhook
