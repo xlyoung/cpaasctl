@@ -123,7 +123,7 @@ steps:
       TEST_SSH_HOST: ${TEST_SSH_HOST}
     settings:
       debug: true
-      host: ${TEST_SSH_HOST}
+      host: 10.8.22.250
       username: root
       password:
         from_secret: 122_ssh_password
@@ -132,7 +132,7 @@ steps:
       target:
         - /opt/cpaas/
       source:
-        - ${SERVER_NAME}
+        - cpctl
     when:
       branch:
         - release/*
