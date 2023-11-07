@@ -120,7 +120,7 @@ steps:
     image: 10.8.22.212/dockerhub/appleboy/drone-scp
     environment:
       SERVER_NAME: ${SERVER_NAME}
-      TEST_SSH_HOST: ${TEST_SSH_HOST}\
+      TEST_SSH_HOST: ${TEST_SSH_HOST}
       password:
         from_secret: 122_ssh_password
     commands:
