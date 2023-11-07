@@ -102,6 +102,7 @@ steps:
       password:
         from_secret: 122_ssh_password
     commands:
+      - printenv
       - drone-scp --host $SSH_HOST --port 22 --username root --password $password --target /opt/cpaas/ --source $SERVER_NAME
     when:
       branch:
@@ -120,6 +121,7 @@ steps:
       password:
         from_secret: 122_ssh_password
     commands:
+      - printenv
       - drone-scp --host $SSH_HOST --port 22 --username root --password $password --target /opt/cpaas/ --source $SERVER_NAME
     when:
       branch:
@@ -137,6 +139,7 @@ steps:
       password:
         from_secret: 122_ssh_password
     commands:
+      - printenv
       - drone-scp --host $SSH_HOST --port 22 --username root --password $password --target /opt/cpaas/ --source $SERVER_NAME
     when:
       event:
