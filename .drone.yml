@@ -46,6 +46,7 @@ trigger:
     - bugfix/*
   event:
     - push
+    - promote
 
 platform:
   os: linux
