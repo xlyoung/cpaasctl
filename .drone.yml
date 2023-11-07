@@ -1,33 +1,86 @@
 kind: secret
 name: docker_username
 get:
-  path: secrets
+  path: cpaas/data/docker
   name: docker_username
 ---
 kind: secret
 name: docker_password
 get:
-  path: secrets
+  path: cpaas/data/docker
   name: docker_password
 ---
+kind: secret
+name: 122_ssh_password
+get:
+  path: cpaas/data/ssh
+  name: 122_password
+---
+kind: secret
+name: 231_token
+get:
+  path: cpaas/data/kubernetes
+  name: 231_token
+---
+
+kind: secret
+name: 241_token
+get:
+  path: cpaas/data/kubernetes
+  name: 241_token
+---
+
 
 kind: pipeline
 type: docker
 name: default
 
+trigger:
+  branch:
+    - dev
+    - main
+    - release/*
+    - release*
+    - hotfix/*
+    - support/*
+    - bugfix/*
+  event:
+    - push
+
+platform:
+  os: linux
+  arch: amd64
+
 clone:
   disable: true
 
 environment:
+  #每个项目 都要需要修改  SERVER_NAME，SERVICE_PORT，CHART_FILE(部分修改）
+  ## 需要修改##
   SERVER_NAME: cpctl
+
+  ##根据环境不同区分##
+  ##dev
+  DEV_SSH_HOST: 10.8.22.250
+  ##test
+  TEST_SSH_HOST: 10.8.22.250
+
+  #编译配置
   GOPROXY: http://10.8.22.212:8081/repository/go-group/,direct
   GIT_NAME: gitlab.hycyg.com
   GIT_IP: 10.8.22.102
-  REPO: 10.8.22.212/paas/cpctl
+  VERSION: ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
 
 steps:
   - name: 拉取代码
     image: 10.8.22.212/drone/git:latest
+
+  - name: lint
+    image: 10.8.22.212/dockerhub/golangci/golangci-lint:v1.55 # 使用golangci-lint的Docker镜像
+    commands:
+      - golangci-lint run --out-format=colored-line-number   # 运行golangci-lint
+    when:
+      event: [ push, pull_request ]
 
   - name: 构建代码
     image: 10.8.22.212/paas/golang:1.20-fix-gitssh
@@ -35,23 +88,68 @@ steps:
       GOOS: linux
       GOARCH: amd64
       CGO_ENABLED: 0
+      VERSION: ${VERSION}
     commands:
       - make build_server_linux
-      - printenv
 
-  - name: 镜像推送
-    image: plugins/docker
+  - name: 应用部署-docker-dev
+    image: 10.8.22.212/dockerhub/appleboy/drone-scp
+    environment:
+      SERVER_NAME: ${SERVER_NAME}
+      TEST_SSH_HOST: ${DEV_SSH_HOST}
+      password:
+        from_secret: 122_ssh_password
+    commands:
+      - drone-scp --host $TEST_SSH_HOST --port 22 --username root --password $password --target /opt/cpaas/ --source $SERVER_NAME
+    when:
+      branch:
+        - dev
+        - hostfix/*
+        - support/*
+        - bugfix/*
+      event:
+        - push
+
+  - name: 应用部署-docker-test
+    image: 10.8.22.212/dockerhub/appleboy/drone-scp
+    environment:
+      SERVER_NAME: ${SERVER_NAME}
+      TEST_SSH_HOST: ${TEST_SSH_HOST}
+      password:
+        from_secret: 122_ssh_password
+    commands:
+      - drone-scp --host $TEST_SSH_HOST --port 22 --username root --password $password --target /opt/cpaas/ --source $SERVER_NAME
+    when:
+      branch:
+        - release/*
+        - release*
+        - main
+      event:
+        - push
+
+  - name: 企业微信通知
+    image: 10.8.22.212/dockerhub/plugins/webhook
+    environment:
+      VERSION: ${VERSION}
     settings:
       debug: true
-      dockerfile: Dockerfile
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      repo: 10.8.22.212/paas/cpctl
-      tag:
-        - ${DRONE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-      insecure: true
-      registry: 10.8.22.212
-#      build_args:
-#        SERVER_NAME: ${SERVER_NAME}
+      urls: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=521d7fbb-62b8-4ed9-9c25-660852d6895e
+      content_type: application/json
+      template: |
+        {
+          "msgtype": "markdown",
+          "markdown": {
+              "content": "{{#success build.status}}✅{{else}}❌{{/success}}**{{ repo.owner }}/{{ repo.name }}** (Build #{{build.number}})\n
+                          >**构建结果**: {{ build.status }}
+                          >**构建详情**: [点击查看]({{ build.link }})
+                          >**代码分支**: {{ build.branch }}
+                          >**提交标识**: {{ build.commit }}
+                          >**提交发起**: {{ build.author }}
+                          >**提交信息**: {{ build.message }}
+        "
+          }
+        }
+    when:
+      status:
+        - success
+        - failure
