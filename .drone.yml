@@ -123,7 +123,7 @@ steps:
       TEST_SSH_HOST: ${TEST_SSH_HOST}
     settings:
       debug: true
-      host: 10.8.22.250
+      host: ${TEST_SSH_HOST}
       username: root
       password:
         from_secret: 122_ssh_password
