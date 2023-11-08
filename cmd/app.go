@@ -6,13 +6,7 @@ import (
 	"log"
 )
 
-var (
-	appCmd = &cobra.Command{
-		Use:   "app",
-		Short: "Manage applications",
-	}
-	newappHandler *handler.AppHandler
-)
+var newappHandler *handler.AppHandler
 
 func getAppHandler() (*handler.AppHandler, error) {
 	if newappHandler == nil {
@@ -146,5 +140,5 @@ func SetupAppCmd() {
 		},
 	}
 
-	appCmd.AddCommand(startCmd, stopCmd, restartCmd, statusCmd, pullCmd, logCmd) // 将生成的子命令添加到 appCmd
+	rootCmd.AddCommand(startCmd, stopCmd, restartCmd, statusCmd, pullCmd, logCmd) // 将生成的子命令添加到 appCmd
 }
